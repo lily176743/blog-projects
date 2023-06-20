@@ -1,0 +1,47 @@
+version: '2'
+
+volumes:
+  postgres_data_dev: {}
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres_db
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    command: python manage.py runserver 0.0.0.0:5000
+    depends_on:
+      - postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres_db
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres_db
+      - WDB_SOCKET_SERVER=wdb
+      - WDB_NO_BROWSER_AUTO_OPEN=True
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    links:
+      - postgres
+      - wdb
+  nginx:
+    build: ./compose/nginx
+    depends_on:
+      - django
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - ./django_nginx_proxy/media:/var/www/media
+  wdb:
+    image: kozea/wdb-server
+    ports:
+      - "1984:1984"

@@ -1,0 +1,13 @@
+Django==1.11.29
+
+# Configuration
+django-environ==0.4.0
+
+# Python-PostgreSQL Database Adapter
+psycopg2==2.6.2
+
+# Images
+Pillow==6.2.1
+
+# DRFs
+djangorestframework==3.9.1
